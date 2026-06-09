@@ -447,14 +447,28 @@ private:
         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
             AttackStart(target);
     }
+    Seconds GetSubmergeTimer() const
+    {
+        uint32 players = me->GetMap()->GetPlayersCountExceptGMs();
 
+        if (players <= 5)
+            return 25s;
+        else if (players <= 10)
+            return 45s;
+        else if (players <= 20)
+            return 90s;
+        else if (players <= 30)
+            return 120s;
+        else
+            return 180s;
+    }
     void ScheduleCombatEvents()
     {
         events.RescheduleEvent(EVENT_ERUPTION, 15s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_HAND_OF_RAGNAROS, 25s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_LAVA_BURST, 10s, PHASE_EMERGED, PHASE_EMERGED);
-        events.RescheduleEvent(EVENT_SUBMERGE, 45s, PHASE_EMERGED, PHASE_EMERGED);
+        events.RescheduleEvent(EVENT_SUBMERGE, GetSubmergeTimer(), PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_MIGHT_OF_RAGNAROS, 11s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_MELEE_SCAN, 500ms, PHASE_EMERGED, PHASE_EMERGED);
     }
