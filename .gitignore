@@ -19,6 +19,8 @@
 !/env/dist/.gitkeep
 /env/user/*
 /.env*
+/build/*
+/staging/*
 /apps/joiner
 /deps/deno
 /data/sql/custom/*
@@ -47,6 +49,8 @@
 .DS_Store
 CMakeLists.txt.user
 *.bak
+*.rar
+*.zip
 *.patch
 *.diff
 *.REMOTE.*
