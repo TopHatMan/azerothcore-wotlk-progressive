@@ -802,6 +802,15 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty& difficulty)
 {
+    // Naxx40 (mod-03-individual-progression) uses RAID_DIFFICULTY_10MAN_HEROIC
+    // as the vanilla 40-man slot. Don't downscale it.
+    if (mapId == 533 && difficulty == RAID_DIFFICULTY_10MAN_HEROIC)
+    {
+        MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, RAID_DIFFICULTY_25MAN_NORMAL);
+        difficulty = RAID_DIFFICULTY_10MAN_HEROIC;
+        return mapDiff;
+    }
+
     uint32 tmpDiff = difficulty;
 
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
@@ -810,19 +819,17 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty& di
         if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
             tmpDiff -= 2;
         else
-            tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)
+            tmpDiff -= 1;
 
-        // pull new data
-        mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
+        mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
         if (!mapDiff)
         {
             tmpDiff -= 1;
-            mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
+            mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
         }
     }
 
     difficulty = Difficulty(tmpDiff);
-
     return mapDiff;
 }
 

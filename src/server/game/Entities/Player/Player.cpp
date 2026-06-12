@@ -10246,12 +10246,12 @@ void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
     if (!spell)
         return;
 
-    // don't do anything with no charges
-    if (mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges())
+    // ownerAura is null for item-affix mods — skip charge logic for those
+    if (mod->ownerAura && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges())
         return;
 
-    // register inside spell, proc system uses this to drop charges
-    spell->m_appliedMods.insert(mod->ownerAura);
+    if (mod->ownerAura)
+        spell->m_appliedMods.insert(mod->ownerAura);
 }
 
 bool Player::HasSpellModApplied(SpellModifier* mod, Spell* spell)

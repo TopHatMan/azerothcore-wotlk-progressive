@@ -138,6 +138,9 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
     else
     {
         Difficulty realdiff = player->GetDifficulty(IsRaid());
+        // Naxx40 override
+        if (GetId() == 533 && player->GetLevel() <= 70)
+            realdiff = RAID_DIFFICULTY_10MAN_HEROIC;
         uint32 destInstId = sInstanceSaveMgr->PlayerGetDestinationInstanceId(player, GetId(), realdiff);
 
         if (destInstId)
@@ -170,6 +173,9 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             uint32 newInstanceId = sMapMgr->GenerateInstanceId();
             ASSERT(!FindInstanceMap(newInstanceId)); // pussywizard: instance with new id can't exist
             Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty(IsRaid()) : player->GetDifficulty(IsRaid());
+            // Naxx40 override
+            if (GetId() == 533 && player->GetLevel() <= 70)
+                diff = RAID_DIFFICULTY_10MAN_HEROIC;
             map = CreateInstance(newInstanceId, nullptr, diff, player);
         }
     }
@@ -198,7 +204,9 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(GetId(), difficulty);
-
+    // Naxx40 hard override
+    if (GetId() == 533 && player && player->GetLevel() <= 70)
+        difficulty = RAID_DIFFICULTY_10MAN_HEROIC;
     LOG_DEBUG("maps", "MapInstanced::CreateInstance: {} map instance {} for {} created with difficulty {}", save ? "" : "new ", InstanceId, GetId(), difficulty ? "heroic" : "normal");
 
     InstanceMap* map = new InstanceMap(GetId(), InstanceId, difficulty, this);

@@ -9,6 +9,7 @@ New-Item -ItemType Directory -Force "$staging\bin"          | Out-Null
 New-Item -ItemType Directory -Force "$staging\conf\modules" | Out-Null
 New-Item -ItemType Directory -Force "$staging\sql"          | Out-Null
 New-Item -ItemType Directory -Force "$staging\data"         | Out-Null
+New-Item -ItemType Directory -Force "$staging\modules"      | Out-Null
 
 # „Ÿ„Ÿ 1. Binaries from build „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
 Write-Host "Copying binaries..." -ForegroundColor Green
@@ -33,31 +34,25 @@ Get-ChildItem $modulesRoot -Directory | ForEach-Object {
     }
 }
 
-# „Ÿ„Ÿ 4. Module SQL ¨ sql\modulename „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-Write-Host "Copying module SQL..." -ForegroundColor Yellow
+# „Ÿ„Ÿ 4. Module subfolders excluding src and conf „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+$excludedFolders = @("src", "conf")
+Write-Host "Copying module assets (excluding src and conf)..." -ForegroundColor Magenta
 Get-ChildItem $modulesRoot -Directory | ForEach-Object {
-    $sqlSrc = Join-Path $_.FullName "data\sql"
-    if (Test-Path $sqlSrc) {
-        $sqlDst = "$staging\sql\$($_.Name)"
-        New-Item -ItemType Directory -Force $sqlDst | Out-Null
-        Write-Host "  [$($_.Name)] sql" -ForegroundColor Yellow
-        Copy-Item -Path "$sqlSrc\*" -Destination $sqlDst -Recurse -Force
+    $modName = $_.Name
+    $modRoot = $_.FullName
+
+    Get-ChildItem $modRoot -Directory | Where-Object { 
+        $excludedFolders -notcontains $_.Name 
+    } | ForEach-Object {
+        $folderName = $_.Name
+        $dst = "$staging\modules\$modName\$folderName"
+        New-Item -ItemType Directory -Force $dst | Out-Null
+        Write-Host "  [$modName\$folderName]" -ForegroundColor Magenta
+        Copy-Item -Path "$($_.FullName)\*" -Destination $dst -Recurse -Force
     }
 }
 
-# „Ÿ„Ÿ 5. Module non-SQL data ¨ data „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-Write-Host "Copying module data..." -ForegroundColor Cyan
-Get-ChildItem $modulesRoot -Directory | ForEach-Object {
-    $dataSrc = Join-Path $_.FullName "data"
-    if (Test-Path $dataSrc) {
-        Get-ChildItem $dataSrc -Directory | Where-Object { $_.Name -ne "sql" } | ForEach-Object {
-            Write-Host "  [$($_.Name)] data" -ForegroundColor Cyan
-            Copy-Item -Path "$($_.FullName)\*" -Destination "$staging\data" -Recurse -Force
-        }
-    }
-}
-
-# „Ÿ„Ÿ 6. Root AC data folder „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+# „Ÿ„Ÿ 5. Root AC data folder „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
 Write-Host "Copying root data folder..." -ForegroundColor Green
 if (Test-Path "$acRoot\data") {
     Copy-Item -Path "$acRoot\data\*" -Destination "$staging\data" -Recurse -Force
@@ -65,6 +60,6 @@ if (Test-Path "$acRoot\data") {
 
 Write-Host "`nDone! Staging at $staging" -ForegroundColor Green
 Write-Host "bin\     - worldserver.exe + authserver.exe" -ForegroundColor White
-Write-Host "conf\    - main confs + modules\" -ForegroundColor White
-Write-Host "data\    - all data files" -ForegroundColor White
-Write-Host "sql\     - per-module SQL ready to import" -ForegroundColor White
+Write-Host "conf\    - main confs + modules\"            -ForegroundColor White
+Write-Host "modules\ - all module subfolders except src and conf" -ForegroundColor White
+Write-Host "data\    - all data files"                   -ForegroundColor White
