@@ -1,92 +1,145 @@
-# ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
+# AzerothCore — Ashbringer Fork
+
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![CodeFactor](https://www.codefactor.io/repository/github/azerothcore/azerothcore-wotlk/badge)](https://www.codefactor.io/repository/github/azerothcore/azerothcore-wotlk)
 [![Discord](https://img.shields.io/discord/217589275766685707?logo=discord&logoColor=white)](https://discord.gg/gkt4y2x "Our community hub on Discord")
+=======
+Custom AzerothCore WotLK 3.3.5a build powering the **Ashbringer** private server.
+Based on AzerothCore `bcraft-loc` branch.
 
-## Build Status
 
-[![nopch-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-nopch.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-nopch.yml?query=branch%3Amaster)
-[![pch-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-pch.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-pch.yml?query=branch%3Amaster)
-[![core-modules-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core_modules_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core_modules_build.yml?query=branch%3Amaster)
-[![windows-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/windows_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/windows_build.yml?query=branch%3Amaster)
-[![macos-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/macos_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/macos_build.yml?query=branch%3Amaster)
-[![docker-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/docker_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/docker_build.yml?query=branch%3Amaster)
-[![tools-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/tools_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/tools_build.yml?query=branch%3Amaster)
-[![dashboard-ci](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/dashboard-ci.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/dashboard-ci.yml?query=branch%3Amaster)
+---
 
-## Introduction
+## Core Modifications
 
-AzerothCore is an open-source game server application and framework designed for hosting massively multiplayer online role-playing games (MMORPGs). It is based on the popular MMORPG World of Warcraft (WoW) and seeks to recreate the gameplay experience of the original game from patch 3.3.5a.
+These are direct edits to AzerothCore source files. If you are merging upstream changes,
+these files need to be checked for conflicts.
 
-The original code is based on MaNGOS, TrinityCore, and SunwellCore and has since then had extensive development to improve stability, in-game mechanics, and modularity to the game. AC has also grown into a community-driven project with a significant number of contributors and developers. It is written in C++ and provides a solid foundation for creating private servers that mimic the mechanics and behavior of the official WoW servers.
+---
 
-## Philosophy
+### 1. Naxx40 — Difficulty Downscale Fix
+**File:** `src/server/game/DataStores/DBCStores.cpp`
+**Function:** `GetDownscaledMapDifficultyData` (~line 803)
 
-Our main goal is to create a playable game server, offering a fully working in-game experience.
+**Problem:** When difficulty `2` (RAID_DIFFICULTY_10MAN_HEROIC) is not found in DBC for
+map 533 (Naxxramas), the function silently downgrades to difficulty `0`, preventing Naxx40
+from loading correctly.
 
-Here are the main points we focus on:
+**Fix:** Added a special case at the top of the function — if `mapId == 533` and
+`difficulty == RAID_DIFFICULTY_10MAN_HEROIC`, return the 40-player difficulty entry directly.
 
-* Stability
-  * We make sure all changes pass the CIs before being merged into the master branch.
+---
 
-* Blizzlike content
-  * We strive to make all in-game content to be blizzlike. Therefore we have a high standard for fixes being made.
+### 2. Naxx40 — Script Double Registration Fix
+**File:** `src/server/scripts/Northrend/northrend_script_loader.cpp`
+**Lines:** ~62 and ~228
 
-* Customization
-  * It is easy to customize your experience using [modules](#modules).
+**Problem:** Base AzerothCore registers `AddSC_instance_naxxramas()` for map 533.
+`mod-vanilla-naxxramas` also registers the same script, causing both to become invalid
+and the instance to fail.
 
-* Community driven
-  * AzerothCore has an active community of developers, contributors, and users who collaborate, share knowledge, and provide support through forums, Discord channels, and other communication platforms. 
+**Fix:** Commented out the base AC registration calls on lines 62 and 228 so only
+`mod-vanilla-naxxramas` owns the Naxx script.
 
-### Modules
+---
 
-AzerothCore is designed to be highly modular, allowing developers to extend and customize the game to suit their preferences or create unique gameplay experiences. This flexibility enables the addition of custom features, content, and modifications.
+### 3. Ragnaros — AutoBalance Tuning
+**File:** `src/server/scripts/EasternKingdoms/Molten_Core/boss_ragnaros.cpp`
+*(or relevant autobalance override file)*
 
-We have a lot of modules already made by the community, many of which can be found in the [Module Catalogue](https://www.azerothcore.org/catalogue.html#/).
+**Problem:** AutoBalance default scaling made Ragnaros trivial or unplayably hard
+depending on group size.
 
-## Installation
+**Fix:** Custom HP/damage scaling adjustments to keep Ragnaros engaging for small
+groups while still requiring meaningful coordination. See inline comments in the file.
 
-Detailed installation instructions are available [here](http://www.azerothcore.org/wiki/installation).
+---
 
-## Contributing
+### 4. Item Affixes — Spell Whitelist / Blacklist Edits
+**File:** Related to `mod-item-affixes` spell configuration
 
-AzerothCore can also serve as a learning resource for aspiring developers who want to understand how WoW servers work, how MMORPGs are structured, how game server emulators are created, or to improve their C++ and SQL knowledge.
+**Problem:** Default affix spell pool included spells that were either broken,
+too powerful, or incompatible with vanilla-era progression.
 
-If you want to contribute to the project, you will find a lot of resources that will guide you in our [wiki](https://www.azerothcore.org/wiki/contribute).
+**Fix:** Edited spell eligibility list to exclude problematic spell IDs and ensure
+affixes feel appropriate for the progression phase. See inline comments.
 
-We also recommend you read our [Contributor Covenant Code of Conduct](https://github.com/azerothcore/azerothcore-wotlk/blob/master/.github/CODE_OF_CONDUCT.md).
+---
 
-Feel free to join our [Discord server](https://discord.gg/gkt4y2x).
+## Required SQL (Characters DB)
 
-Click on the "⭐ Star" button to help us gain more visibility on Github!
+Run after fresh install or migration:
 
-## Authors & Contributors
+```sql
+-- mod-xp-dynamic tables
+source modules/mod-xp-dynamic/data/sql/db_characters/base/account_tables.sql
 
-The project was born in 2016 based on SunwellCore. Unfortunately, SunwellCore was published without any git history, so on git there are no credits for all the contributors before 2016.
+-- Naxx40 map/difficulty entries
+INSERT INTO mapdifficulty_dbc (ID, MapID, Difficulty, Message_Lang_enUS, Message_Lang_Mask, RaidDuration, MaxPlayers, Difficultystring)
+VALUES ([id], 533, 2, 'You must be level 60 and in a raid group to enter.', 16712190, 604800, 40, 'RAID_DIFFICULTY_40PLAYER');
 
-You can check the [authors](https://github.com/azerothcore/azerothcore-wotlk/blob/master/AUTHORS) file for more details.
+INSERT INTO map_dbc (ID, ExpansionID) VALUES (533, 0);
+```
 
-## Important Links
+---
 
-- [Doxygen documentation](https://www.azerothcore.org/pages/doxygen/index.html)
-- [Website](http://www.azerothcore.org/)
-- [AzerothCore catalogue](http://www.azerothcore.org/catalogue.html  "Modules, tools, and other stuff for AzerothCore") (modules, tools, etc...)
-- [Our Discord server](https://discord.gg/gkt4y2x)
-- [Our wiki](http://www.azerothcore.org/wiki "Easy to use and developed by AzerothCore founder")
-- [Our forum](https://github.com/azerothcore/azerothcore-wotlk/discussions/)
-- [Our Facebook page](https://www.facebook.com/AzerothCore/)
-- [Our LinkedIn page](https://www.linkedin.com/company/azerothcore/)
+## Modules
 
-## License
+All modules live in `Z:\ac\modules\` (Windows build machine) or equivalent on Linux.
 
-- The new AzerothCore source components are released under the [GNU AGPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html)
-- The old sources based on MaNGOS/TrinityCore are released under the [GNU GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+| Module | Purpose |
+|--------|---------|
+| `mod-xp-dynamic` | Dynamic XP/Gold/Rep rates, Skill XP rolls, Alt Progression Bonus, ARAC class fixes |
+| `mod-001v1-arena` | 1v1 arena support |
+| `mod-01-progression-system` | Chromie-style era gating (phase progression) |
+| `mod-02-progression` | Progression system support layer |
+| `mod-03-individual-progression` | Per-player individual progression tracking and dungeon access |
+| `mod-ah-bot-plus` | Auction house bot to keep AH populated on low-pop server |
+| `mod-autobalance` | Dynamic creature scaling based on group size |
+| `mod-autofish` | Auto fishing bot / utility |
+| `mod-boss-announcer` | Announces boss kills server-wide |
+| `mod-breaking-news-override` | Custom server news/broadcast override |
+| `mod-guildhouse` | Player guild housing system |
+| `mod-instance-reset` | Custom instance lockout/reset controls |
+| `mod-instance-tools` | Instance management GM tools |
+| `mod-item-affixes` | Random item affixes — adds roguelike modifier rolls to loot |
+| `mod-multibot-bridge` | Bridge for managing multiple playerbot accounts |
+| `mod-mythic-plus` | Mythic+ style dungeon difficulty system |
+| `mod-nemesis-system` | Player nemesis / rivalry tracking system |
+| `mod-npc-enchanter` | Custom NPC enchanter for convenience |
+| `mod-npc-gambler` | Gambling NPC |
+| `mod-player-bot-level-brackets` | Forces playerbots to stay within level brackets |
+| `mod-playerbots` | ARAC playerbot system (any race any class AI bots) |
+| `mod-playerbots-characters` | LLM-powered bot characters via OpenRouter API |
+| `mod-profession-experience` | Bonus XP for profession leveling |
+| `mod-quest-loot-party` | Quest loot shared to party members |
+| `mod-reagent-bank-account` | Account-wide reagent bank |
+| `mod-recruit-friend` | Recruit-a-friend XP bonus system |
+| `mod-solocraft` | Solo dungeon difficulty scaling |
+| `mod-solo-lfg` | LFG system for solo players / small groups |
+| `mod-transmog` | Transmogrification system |
+| `mod-travelers-recall` | Extra hearthstone / recall system |
+| `mod-vanilla-naxxramas` | Naxx40 — restores 40-player Naxxramas for vanilla era progression |
 
-It's important to note that AzerothCore is not an official Blizzard Entertainment product, and it is not affiliated with or endorsed by World of Warcraft or Blizzard Entertainment. AzerothCore does not in any case sponsor nor support illegal public servers. If you use this project to run an illegal public server and not for testing and learning it is your own personal choice.
+---
 
-## Special thanks
+## Notes for Maintainers
 
-[JetBrains](https://www.jetbrains.com/?from=AzerothCore) is providing free [open-source licenses](https://www.jetbrains.com/community/opensource/) to the AzerothCore developers.
+- **mod-playerbots-characters** uses OpenRouter as LLM backend. Config: `PBC.BaseUrl = https://openrouter.ai/api/v1` (do NOT append `/chat/completions` — the module adds that itself). Model: `deepseek/deepseek-v4-flash`.
+- **mod-vanilla-naxxramas** requires the two core edits above (DBCStores and script loader) to function correctly. Without them Naxx40 will either not load or crash on entry.
+- **mod-item-affixes** spell list was manually curated — do not overwrite with upstream defaults without reviewing the affix spell edits documented above.
+- **mod-autobalance** Ragnaros tuning — see core edit #3 above.
+- **Client-side:** Players need a custom `patch-n.mpq` that adds difficulty 2 entries to client-side `MapDifficulty.dbc` for map 533. Without it the skull difficulty icon does not display on the instance portal even if the server is configured correctly.
 
-[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)
+---
+
+## Server Info
+
+- **Server name:** Ashbringer
+- **Expansion:** WotLK 3.3.5a (Chromie progression — vanilla phase at launch)
+- **Build machine:** Windows, Z:\ac
+- **Server path:** S:\apps\WoWServAsh
+- **Characters DB:** `azc_characters_ashbringer`
+- **World DB:** `azc_world_ashbringer`
+- **Dedicated server hardware:** Firebat A6 Mini PC (Ryzen 7 7735HS, 16GB LPDDR5) — headless, NSSM services
