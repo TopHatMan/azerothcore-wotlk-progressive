@@ -783,6 +783,11 @@ public:
     CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
     CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
     ItemTemplate const* GetItemTemplate(uint32 entry);
+    // AZEROTH-ERAS: mutable accessor for the progression overlay reconciler, which
+    // patches specific stat fields on the already-loaded in-memory template after
+    // ObjectMgr::LoadItemTemplates() runs. The backing item_template DB rows and the
+    // baseline object are never touched -- only this cached copy is overlaid.
+    ItemTemplate* GetItemTemplateForWrite(uint32 entry);
     [[nodiscard]] ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
     [[nodiscard]] std::vector<ItemTemplate*> const* GetItemTemplateStoreFast() const { return &_itemTemplateStoreFast; }
 

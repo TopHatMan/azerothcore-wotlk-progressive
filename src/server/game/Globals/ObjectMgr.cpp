@@ -3935,6 +3935,12 @@ ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
     return entry < _itemTemplateStoreFast.size() ? _itemTemplateStoreFast[entry] : nullptr;
 }
 
+// AZEROTH-ERAS: see ObjectMgr.h -- same lookup, mutable, for the progression overlay.
+ItemTemplate* ObjectMgr::GetItemTemplateForWrite(uint32 entry)
+{
+    return entry < _itemTemplateStoreFast.size() ? _itemTemplateStoreFast[entry] : nullptr;
+}
+
 void ObjectMgr::LoadItemSetNameLocales()
 {
     uint32 oldMSTime = getMSTime();
