@@ -1548,6 +1548,12 @@ void Pet::_LoadSpells(PreparedQueryResult result)
 
 void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
+    // rewrite the whole spell book: pet numbers are recycled, so an incremental save would let a
+    // new pet inherit the rows of whichever pet held the number before it
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELLS);
+    stmt->SetData(0, m_charmInfo->GetPetNumber());
+    trans->Append(stmt);
+
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
         ++next;
@@ -1555,8 +1561,6 @@ void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
         // prevent saving family passives to DB
         if (itr->second.type == PETSPELL_FAMILY)
             continue;
-
-        CharacterDatabasePreparedStatement* stmt;
 
         switch (itr->second.state)
         {
@@ -1585,7 +1589,7 @@ void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
                 stmt->SetData(0, m_charmInfo->GetPetNumber());
                 stmt->SetData(1, itr->first);
                 trans->Append(stmt);
-                
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->SetData(0, m_charmInfo->GetPetNumber());
                 stmt->SetData(1, itr->first);
@@ -1595,6 +1599,7 @@ void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
             case PETSPELL_UNCHANGED:
                 continue;
         }
+
         itr->second.state = PETSPELL_UNCHANGED;
     }
 }

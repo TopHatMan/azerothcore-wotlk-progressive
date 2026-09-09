@@ -1483,6 +1483,33 @@ class spell_gen_clear_debuffs : public SpellScript
     }
 };
 
+enum ClearDemonicCircle
+{
+    SPELL_DEMONIC_CIRCLE_SUMMON = 48018
+};
+
+// 62037 - Clear Demonic Circle
+class spell_gen_clear_demonic_circle : public SpellScript
+{
+    PrepareSpellScript(spell_gen_clear_demonic_circle);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEMONIC_CIRCLE_SUMMON });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            target->RemoveAurasDueToSpell(SPELL_DEMONIC_CIRCLE_SUMMON);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_clear_demonic_circle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum CreateLanceSpells
 {
     SPELL_CREATE_LANCE_ALLIANCE = 63914,
@@ -2580,8 +2607,9 @@ class spell_gen_vehicle_scaling_aura: public AuraScript
             default:
             {
                 float totalILvl = player->GetTotalItemLevel();
-                float result = (totalILvl - 2500.0f) / 5.0f / 100.0f;
-                amount = static_cast<int32>(std::max(0.1f, result));
+                float scaling = (totalILvl - 2500.0f) / 5.0f / 100.0f;
+                scaling = std::max(0.1f, scaling);
+                amount = static_cast<int32>(std::round((scaling - 1.0f) * 100.0f));
                 break;
             }
         }
@@ -4476,7 +4504,7 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public AuraScript
     }
 };
 
-// 50630, 68576 - Eject All Passengers
+// 50630, 51254, 68576 - Eject All Passengers
 class spell_gen_eject_all_passengers : public SpellScript
 {
     PrepareSpellScript(spell_gen_eject_all_passengers);
@@ -6225,6 +6253,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_burn_brutallus);
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_clear_debuffs);
+    RegisterSpellScript(spell_gen_clear_demonic_circle);
     RegisterSpellScript(spell_gen_create_lance);
     RegisterSpellScript(spell_gen_netherbloom);
     RegisterSpellScript(spell_gen_nightmare_vine);
