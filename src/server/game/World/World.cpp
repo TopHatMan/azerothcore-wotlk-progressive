@@ -1327,6 +1327,7 @@ void World::Update(uint32 diff)
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
         sScriptMgr->OnDatabasesKeepAlive();
+        sScriptMgr->OnModuleDatabasesKeepAlive();
     }
 
     {

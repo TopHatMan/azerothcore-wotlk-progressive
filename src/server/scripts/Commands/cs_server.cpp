@@ -27,6 +27,7 @@
 #include "MySQLThreading.h"
 #include "RBAC.h"
 #include "Realm.h"
+#include "ScriptMgr.h"
 #include "StringConvert.h"
 #include "UpdateTime.h"
 #include "VMapFactory.h"
@@ -34,6 +35,7 @@
 #include "WorldSessionMgr.h"
 #include <boost/version.hpp>
 #include <filesystem>
+#include <map>
 #include <numeric>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
@@ -220,6 +222,11 @@ public:
 #endif
         
 
+        std::map<std::string, std::string> moduleDBRevisions;
+        sScriptMgr->OnDatabaseGetDBRevision(moduleDBRevisions);
+        for (auto const& [moduleName, revision] : moduleDBRevisions)
+            handler->PSendSysMessage("Using {} DB Revision: {}", moduleName, revision);
+
         std::string lldb = "No updates found!";
         if (QueryResult resL = LoginDatabase.Query("SELECT name FROM updates ORDER BY name DESC LIMIT 1"))
         {
@@ -246,9 +253,6 @@ public:
         handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
         handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
         handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
-#ifdef MOD_PLAYERBOTS
-        handler->PSendSysMessage("PlayerbotsDatabase queue size: {}", PlayerbotsDatabase.QueueSize());
-#endif
         
 
         if (Acore::Module::GetEnableModulesList().empty())

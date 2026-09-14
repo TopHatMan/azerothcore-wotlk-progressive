@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef MOD_PLAYERBOTS
+#if 0 // The module owns PlayerbotsDatabase. This core copy would collide with it.
 
 #include "PlayerbotsDatabase.h"
 #include "MySQLPreparedStatement.h"

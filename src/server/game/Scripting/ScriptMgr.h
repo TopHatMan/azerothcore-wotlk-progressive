@@ -37,6 +37,8 @@
 #include "Weather.h"
 #include "World.h"
 #include <atomic>
+#include <map>
+#include <string>
 
 // Add support old api modules
 #include "AllScriptsObjects.h"
@@ -726,13 +728,17 @@ public: /* CommandSC */
 public: /* DatabaseScript */
 
     bool OnDatabasesLoading();
+    bool OnModuleDatabasesLoading();
     void OnAfterDatabasesLoaded(uint32 updateFlags);
     void OnAfterDatabaseLoadCreatureTemplates(std::vector<CreatureTemplate*> creatureTemplateStore);
     void OnDatabasesKeepAlive();
+    void OnModuleDatabasesKeepAlive();
     void OnDatabasesClosing();
+    void OnModuleDatabasesClosing();
     void OnDatabaseWarnAboutSyncQueries(bool apply);
     void OnDatabaseSelectIndexLogout(Player* player, uint32& statementIndex, uint32& statementParam);
     void OnDatabaseGetDBRevision(std::string& revision);
+    void OnDatabaseGetDBRevision(std::map<std::string, std::string>& revisions);
 
 public: /* WorldObjectScript */
 
