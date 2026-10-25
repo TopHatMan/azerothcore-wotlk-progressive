@@ -11,20 +11,20 @@ New-Item -ItemType Directory -Force "$staging\sql"          | Out-Null
 New-Item -ItemType Directory -Force "$staging\data"         | Out-Null
 New-Item -ItemType Directory -Force "$staging\modules"      | Out-Null
 
-# „Ÿ„Ÿ 1. Binaries from build „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+# ï¿½ï¿½ï¿½ï¿½ 1. Binaries from build ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Write-Host "Copying binaries..." -ForegroundColor Green
 Copy-Item "$buildDir\bin\worldserver.exe" "$staging\bin\" -Force
 Copy-Item "$buildDir\bin\worldserver.pdb" "$staging\bin\" -Force
 Copy-Item "$buildDir\bin\authserver.exe"  "$staging\bin\" -Force
 Copy-Item "$buildDir\bin\authserver.pdb"  "$staging\bin\" -Force
 
-# „Ÿ„Ÿ 2. Main conf files „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+# ï¿½ï¿½ï¿½ï¿½ 2. Main conf files ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Write-Host "Copying main conf files..." -ForegroundColor Green
 Copy-Item "$acRoot\src\server\apps\worldserver\worldserver.conf.dist" "$staging\conf\" -Force
 Copy-Item "$acRoot\src\server\apps\authserver\authserver.conf.dist"   "$staging\conf\" -Force
 Copy-Item "$acRoot\src\tools\dbimport\dbimport.conf.dist"             "$staging\conf\" -Force
 
-# „Ÿ„Ÿ 3. Module conf files ¨ conf\modules „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+# ï¿½ï¿½ï¿½ï¿½ 3. Module conf files ï¿½ï¿½ conf\modules ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Write-Host "Copying module confs..." -ForegroundColor Cyan
 Get-ChildItem $modulesRoot -Directory | ForEach-Object {
     $confSrc = Join-Path $_.FullName "conf"
@@ -34,15 +34,20 @@ Get-ChildItem $modulesRoot -Directory | ForEach-Object {
     }
 }
 
-# „Ÿ„Ÿ 4. Module subfolders excluding src and conf „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-$excludedFolders = @("src", "conf")
+# ï¿½ï¿½ï¿½ï¿½ 4. Module subfolders excluding src and conf ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+# mod-azeroth-eras is the one exception: its src/ holds the DBC tooling and
+# extracted client data the race/item work in this repo reads directly at
+# edit time (e.g. modules/mod-azeroth-eras/build/expac/wotlk/dbc/), not just
+# compiled-in C++ -- every other module's src/ is pure C++ already linked
+# into worldserver.exe, so it stays excluded.
 Write-Host "Copying module assets (excluding src and conf)..." -ForegroundColor Magenta
 Get-ChildItem $modulesRoot -Directory | ForEach-Object {
     $modName = $_.Name
     $modRoot = $_.FullName
+    $excludedFolders = if ($modName -eq "mod-azeroth-eras") { @("conf") } else { @("src", "conf") }
 
-    Get-ChildItem $modRoot -Directory | Where-Object { 
-        $excludedFolders -notcontains $_.Name 
+    Get-ChildItem $modRoot -Directory | Where-Object {
+        $excludedFolders -notcontains $_.Name
     } | ForEach-Object {
         $folderName = $_.Name
         $dst = "$staging\modules\$modName\$folderName"
@@ -52,7 +57,7 @@ Get-ChildItem $modulesRoot -Directory | ForEach-Object {
     }
 }
 
-# „Ÿ„Ÿ 5. Root AC data folder „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+# ï¿½ï¿½ï¿½ï¿½ 5. Root AC data folder ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Write-Host "Copying root data folder..." -ForegroundColor Green
 if (Test-Path "$acRoot\data") {
     Copy-Item -Path "$acRoot\data\*" -Destination "$staging\data" -Recurse -Force
@@ -63,3 +68,31 @@ Write-Host "bin\     - worldserver.exe + authserver.exe" -ForegroundColor White
 Write-Host "conf\    - main confs + modules\"            -ForegroundColor White
 Write-Host "modules\ - all module subfolders except src and conf" -ForegroundColor White
 Write-Host "data\    - all data files"                   -ForegroundColor White
+
+# ---- 6. Pack staging into ashcraftvNN.rar, auto-incrementing from existing releases ----
+$rarExe = "C:\Program Files\WinRAR\Rar.exe"
+if (-not (Test-Path $rarExe)) {
+    Write-Host "`nRar.exe not found at $rarExe - skipping archive step." -ForegroundColor Yellow
+} else {
+    $existing = Get-ChildItem -Path $acRoot -Filter "ashcraftv*.rar" -File -ErrorAction SilentlyContinue
+    $nextVersion = 1
+    if ($existing) {
+        $versions = $existing | ForEach-Object {
+            if ($_.BaseName -match 'ashcraftv(\d+)') { [int]$Matches[1] }
+        }
+        if ($versions) { $nextVersion = ($versions | Measure-Object -Maximum).Maximum + 1 }
+    }
+    $archiveName = "ashcraftv$nextVersion.rar"
+    $archivePath = Join-Path $acRoot $archiveName
+
+    Write-Host "`nPacking release archive $archiveName..." -ForegroundColor Green
+    Push-Location $staging
+    & $rarExe a -r -ep1 -m5 $archivePath "*" | Out-Null
+    Pop-Location
+
+    if (Test-Path $archivePath) {
+        Write-Host "Release archive created: $archivePath" -ForegroundColor Green
+    } else {
+        Write-Host "Archive creation failed - check Rar.exe output." -ForegroundColor Red
+    }
+}

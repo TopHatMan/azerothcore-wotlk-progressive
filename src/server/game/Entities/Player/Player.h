@@ -1740,6 +1740,10 @@ public:
     std::string const& GetGuildName();
     [[nodiscard]] uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
     void SetFreeTalentPoints(uint32 points);
+    // Used by CoreVocationService::LiveApplySwitch after live-relearning a
+    // restored class's talents, so InitTalentForLevel()'s "used vs allowed"
+    // math is correct for the new class instead of stale from the old one.
+    void SetUsedTalentCount(uint32 count) { m_usedTalentCount = count; }
     bool resetTalents(bool noResetCost = false);
     [[nodiscard]] uint32 resetTalentsCost() const;
     bool IsMaxLevel() const;
