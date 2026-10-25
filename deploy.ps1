@@ -152,6 +152,27 @@ $remote += " && tar -xf ac-deploy.tar && del ac-deploy.tar"
 & ssh @sshArgs $RemoteHost $remote
 if ($LASTEXITCODE -ne 0) { throw "Remote extract failed" }
 
+# mod-playerbots now reads Playerbots.* keys, while sibling modules still read some
+# AiPlayerbot.* keys. Give the live confs both spellings (once, with a backup).
+if (-not $NoBinaries) {
+    $migrate = @'
+foreach ($name in 'playerbots.conf', 'mod_dungeon_clear.conf', 'mod_playerbot_world_pvp.conf') {
+    $path = Join-Path 'C:\Apps\WoWServAsh\configs\modules' $name
+    if (-not (Test-Path $path)) { continue }
+    $lines = Get-Content $path
+    if ($lines -match '^\s*Playerbots\.') { continue }
+    $old = $lines -match '^\s*AiPlayerbot\.'
+    if (-not $old) { continue }
+    Copy-Item $path "$path.pre-playerbots-rename" -Force
+    $added = $old | ForEach-Object { $_ -replace '^(\s*)AiPlayerbot\.', '$1Playerbots.' }
+    Add-Content $path -Value @('', '# Playerbots.* copies of the AiPlayerbot.* keys above (upstream key rename)') + $added
+    Write-Output "  ${name}: added $($added.Count) Playerbots.* keys"
+}
+'@
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($migrate))
+    & ssh @sshArgs $RemoteHost "powershell -NoProfile -EncodedCommand $encoded"
+}
+
 New-Item -ItemType Directory -Force (Split-Path $stampFile) | Out-Null
 Set-Content $stampFile $deployStart.ToString("o")
 Remove-Item -Recurse -Force $pkg, $tarFile -ErrorAction SilentlyContinue
