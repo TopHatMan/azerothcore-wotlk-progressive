@@ -132,11 +132,12 @@ __pycache__/
 #  !modules/yourmodule
 #
 # ==================
-.cache
-compile_commands.json
 
 # Live-stack e2e private / local tooling (scratch tests stay uncommitted)
 e2e/local/**
 !e2e/local/README.md
 e2e/go.work
 e2e/go.work.sum
+
+.cache
+compile_commands.json

@@ -388,23 +388,18 @@ void Group::RemoveInvite(Player* player)
     if (!player)
         return;
 
-    // mod_playerbots: double invite hack workaround
-    if (player->GetGroupInvite() != this)
-        return;
+    m_invitees.erase(player);
 
-    auto itr = m_invitees.find(player);
-    if (itr != m_invitees.end())
-        m_invitees.erase(itr);
-
-    player->SetGroupInvite(nullptr);
+    // Clear pending invite from current group, Keep an invite from another group.
+    if (player->GetGroupInvite() == this)
+        player->SetGroupInvite(nullptr);
 }
-
 
 void Group::RemoveAllInvites()
 {
-    for (InvitesList::iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
-        if (*itr)
-            (*itr)->SetGroupInvite(nullptr);
+    for (Player* invitee : m_invitees)
+        if (invitee && invitee->GetGroupInvite() == this)
+            invitee->SetGroupInvite(nullptr);
 
     m_invitees.clear();
 }
@@ -810,6 +805,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
         oldLeader->RemovePlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
 
     newLeader->SetPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
+    ObjectGuid const oldLeaderGuid = m_leaderGuid;
     m_leaderGuid = newLeader->GetGUID();
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
@@ -818,7 +814,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
     data << slot->name;
     BroadcastPacket(&data, true);
 
-    sScriptMgr->OnGroupChangeLeader(this, newLeaderGuid, m_leaderGuid); // This hook should be executed at the end - Not used anywhere in the original core
+    sScriptMgr->OnGroupChangeLeader(this, newLeaderGuid, oldLeaderGuid); // This hook should be executed at the end
 }
 
 void Group::ForcedDisband(bool hideDestroy /* = false */)
@@ -1555,7 +1551,18 @@ void Group::EndRoll(Loot* pLoot)
     {
         if ((*itr)->getLoot() == pLoot)
         {
-            CountTheRoll(itr);           //i don't have to edit player votes, who didn't vote ... he will pass
+            Roll* roll = *itr;
+            for (auto& [playerGuid, vote] : roll->playerVote)
+            {
+                if (vote != NOT_EMITED_YET)
+                    continue;
+
+                vote = PASS;
+                ++roll->totalPass;
+                SendLootRoll(roll->itemGUID, playerGuid, 128, ROLL_PASS, *roll);
+            }
+
+            CountTheRoll(itr);
             itr = RollId.begin();
         }
         else
@@ -1636,7 +1643,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
             if (maxguid) // pussywizard: added condition
             {
-                SendLootRollWon(ObjectGuid::Empty, maxguid, maxresul, ROLL_NEED, *roll);
+                SendLootRollWon(roll->itemGUID, maxguid, maxresul, ROLL_NEED, *roll);
                 player = ObjectAccessor::FindPlayer(maxguid);
 
                 if (player)
@@ -1717,7 +1724,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
             if (maxguid) // pussywizard: added condition
             {
-                SendLootRollWon(ObjectGuid::Empty, maxguid, maxresul, rollvote, *roll);
+                SendLootRollWon(roll->itemGUID, maxguid, maxresul, rollvote, *roll);
                 player = ObjectAccessor::FindPlayer(maxguid);
 
                 if (player)

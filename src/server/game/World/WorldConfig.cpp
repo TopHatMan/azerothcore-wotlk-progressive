@@ -301,6 +301,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<bool>(CONFIG_OBJECT_QUEST_MARKERS, "Visibility.ObjectQuestMarkers", true);
 
     SetConfigValue<uint32>(CONFIG_MAIL_DELIVERY_DELAY, "MailDeliveryDelay", HOUR);
+    SetConfigValue<bool>(CONFIG_MAIL_PUSH_INBOX_ON_DELIVERY, "Mail.PushInboxOnDelivery", false);
 
     SetConfigValue<uint32>(CONFIG_UPTIME_UPDATE, "UpdateUptimeInterval", 10, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value > 0; }, "> 0");
 
@@ -585,7 +586,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<uint32>(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY, "Warden.ClientResponseDelay", 600);
 
     // Dungeon finder
-    SetConfigValue<uint32>(CONFIG_LFG_OPTIONSMASK, "DungeonFinder.OptionsMask", 5);
+    SetConfigValue<uint32>(CONFIG_LFG_OPTIONSMASK, "DungeonFinder.OptionsMask", 7);
     SetConfigValue<bool>(CONFIG_LFG_CAST_DESERTER, "DungeonFinder.CastDeserter", true);
     SetConfigValue<bool>(CONFIG_LFG_ALLOW_COMPLETED, "DungeonFinder.AllowCompleted", true);
     SetConfigValue<uint32>(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN, "DungeonFinder.DungeonSelectionCooldown", 0);

@@ -19,21 +19,6 @@
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
 
-bool ScriptMgr::OnDatabasesLoading()
-{
-    auto ret = IsValidBoolScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        return !script->OnDatabasesLoading();
-    });
-
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
-}
-
 bool ScriptMgr::OnModuleDatabasesLoading()
 {
     CALL_ENABLED_BOOLEAN_HOOKS(DatabaseScript, DATABASEHOOK_ON_MODULE_DATABASES_LOADING, !script->OnModuleDatabasesLoading());
@@ -49,25 +34,9 @@ void ScriptMgr::OnAfterDatabaseLoadCreatureTemplates(std::vector<CreatureTemplat
     CALL_ENABLED_HOOKS(DatabaseScript, DATABASEHOOK_ON_AFTER_DATABASE_LOAD_CREATURETEMPLATES, script->OnAfterDatabaseLoadCreatureTemplates(creatureTemplates));
 }
 
-void ScriptMgr::OnDatabasesKeepAlive()
-{
-    ExecuteScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        script->OnDatabasesKeepAlive();
-    });
-}
-
 void ScriptMgr::OnModuleDatabasesKeepAlive()
 {
     CALL_ENABLED_HOOKS(DatabaseScript, DATABASEHOOK_ON_MODULE_DATABASES_KEEPALIVE, script->OnModuleDatabasesKeepAlive());
-}
-
-void ScriptMgr::OnDatabasesClosing()
-{
-    ExecuteScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        script->OnDatabasesClosing();
-    });
 }
 
 void ScriptMgr::OnModuleDatabasesClosing()
@@ -77,26 +46,7 @@ void ScriptMgr::OnModuleDatabasesClosing()
 
 void ScriptMgr::OnDatabaseWarnAboutSyncQueries(bool apply)
 {
-    ExecuteScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        script->OnDatabaseWarnAboutSyncQueries(apply);
-    });
-}
-
-void ScriptMgr::OnDatabaseSelectIndexLogout(Player* player, uint32& statementIndex, uint32& statementParam)
-{
-    ExecuteScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        script->OnDatabaseSelectIndexLogout(player, statementIndex, statementParam);
-    });
-}
-
-void ScriptMgr::OnDatabaseGetDBRevision(std::string& revision)
-{
-    ExecuteScript<DatabaseScript>([&](DatabaseScript* script)
-    {
-        script->OnDatabaseGetDBRevision(revision);
-    });
+    CALL_ENABLED_HOOKS(DatabaseScript, DATABASEHOOK_ON_DATABASE_WARN_ABOUT_SYNC_QUERIES, script->OnDatabaseWarnAboutSyncQueries(apply));
 }
 
 void ScriptMgr::OnDatabaseGetDBRevision(std::map<std::string, std::string>& revisions)
